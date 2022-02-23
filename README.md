@@ -1,5 +1,5 @@
 # build-pynini-wheels
-Build `manylinux2014_x86_64` Python wheels for `pynini`, wrapping all its dependencies.
+Build `manylinux2014_x86_64` and `manylinux2014_aarch64` Python wheels for `pynini`, wrapping all its dependencies.
 
 This project heavily relies on other open-source projects.
  - See https://github.com/pypa/manylinux/tree/manylinux2014 for information about `manylinux2014`.
@@ -17,7 +17,13 @@ The process differs for macOS and Windows.
 ## Usage
 To build wheels and run Pynini's tests, run:
 ```shell script
-docker build --target=run-tests -t build-pynini-wheels .
+./build.sh
+```
+
+Or
+
+```shell script
+./build.arm64.sh
 ```
 
 To extract the resulting wheels from the Docker image, run:

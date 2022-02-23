@@ -13,14 +13,16 @@
 # ******************************************************
 # *** All the following images are based on this one ***
 # ******************************************************
-FROM quay.io/pypa/manylinux2014_x86_64 AS common
+ARG BUILDARCH
+FROM quay.io/pypa/manylinux2014_${BUILDARCH} AS common
 
 # We don't support some Python versions.
-RUN rm -rd /opt/python/cp310-cp310
+RUN rm -rd /opt/python/{cp36-cp36m,cp37-cp37m,cp310-cp310,pp37-pypy37_pp73,pp38-pypy38_pp73}
 
 # The versions we want in the wheels.
-ENV FST_VERSION "1.8.1"
-ENV PYNINI_VERSION "2.1.4"
+ENV FST_VERSION "1.8.2"
+ENV PYNINI_VERSION "2.1.5"
+RUN export MAKEFLAGS="-j$(nproc)"
 
 # ***********************************************************************
 # *** Image providing all the requirements for building Pynini wheels ***
@@ -28,8 +30,8 @@ ENV PYNINI_VERSION "2.1.4"
 FROM common AS wheel-building-env
 
 # Location of OpenFst and Pynini.
-ENV FST_DOWNLOAD_PREFIX "http://www.openfst.org/twiki/pub/FST/FstDownload"
-ENV PYNINI_DOWNLOAD_PREFIX "http://www.opengrm.org/twiki/pub/GRM/PyniniDownload"
+ENV FST_DOWNLOAD_PREFIX "https://www.openfst.org/twiki/pub/FST/FstDownload"
+ENV PYNINI_DOWNLOAD_PREFIX "https://www.opengrm.org/twiki/pub/GRM/PyniniDownload"
 
 # Gets and unpack OpenFst source.
 RUN yum install -y wget
@@ -41,7 +43,7 @@ RUN cd /tmp \
 # Compiles OpenFst.
 RUN cd "/tmp/openfst-${FST_VERSION}" \
     && ./configure --enable-grm \
-    && make --jobs 4 install \
+    && make --jobs $(nproc) install \
     && rm -rd "/tmp/openfst-${FST_VERSION}"
 
 # Gets and unpacks Pynini source.
